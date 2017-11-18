@@ -33,7 +33,7 @@ public class DriveXInchesNetworkCommand extends Command{
 	public DriveXInchesNetworkCommand(double inches) {
 		super("drivexinchesnetworkcommand");
 		drivetrain = Components.getInstance().drivetrain;
-		ticks = -Math.round(((inches * 38*1.018) * 10) / 13);										//conversion from inches to ticks
+		ticks = -(int)(((inches * 41.2*1.018) * 10) / 13); //conversion rate taken from prev. code, comp. carpet
 		rampDownValue = rampDownStart*31.6923;
 		requires(drivetrain);
 	} 
@@ -58,7 +58,7 @@ public class DriveXInchesNetworkCommand extends Command{
 		wiggleCounter = 0;
 		startTime = System.currentTimeMillis();
 		
-		ai = new AnalogInput(3);
+		ai = new AnalogInput(0);
 		
 		ai.setOversampleBits(4);
 		ai.setAverageBits(2);
@@ -104,7 +104,10 @@ public class DriveXInchesNetworkCommand extends Command{
 
 	@Override
 	protected boolean isFinished() {
-		return (Math.abs(startTime - System.currentTimeMillis()) > 500000) || drivetrain.getAutoButton(); 
+		if(Math.abs(startTime - System.currentTimeMillis()) > 10000) {
+			return true;
+		}
+		return ai.getAverageVoltage() > 100 || Math.abs(drivetrain.getFrontLeftTalon().getEncPosition() - target) < 31*5; 
 
 	}
 
